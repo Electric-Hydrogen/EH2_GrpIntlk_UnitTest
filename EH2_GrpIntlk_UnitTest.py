@@ -6,7 +6,7 @@ commpath = '10.10.17.12/1'
 AOI_Name = 'TestGrp_Intlk'
 AOI_Type = 'EH2_GrpIntlk'
 UDT_Name = 'P_Intlk_UDT'
-testPLCName = 'EH2_IntlkGrp'
+Test_PLC_Name = 'EH2_GrpIntlk'
 
 plc = LogixDriver(commpath, init_tags=True,init_program_tags=True)
 
@@ -24,25 +24,45 @@ def connect_to_plc():
 def disconnect_from_plc():
     plc.close()
 
+def write_and_check_tag(plc,tag,value):
+    '''
+    Funciton writes to a PLC tag, waits for the value to be written by reading back tag
+    '''
+    write_status = plc.write(tag,value)
+
+    read_status = plc.read(tag)
+
+    if write_status == read_status:
+        return True
+    else
+        return False
 
 class TestAOI(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
 
         connect_to_plc()
-
-        return super().setUpClass()
     
     @classmethod
-    def tearDownClass(self):
+    def tearDownclass(cls):
 
         disconnect_from_plc()
-        return super().tearDownClass()
+
+    def setUp(self):
+
+        aoi_tags = [(AOI_Name+'.Inp_BypActive',0),
+                    (AOI_Name+'.Cfg_OKState',0),
+                    (AOI_Name+'.Cfg_Latched',0),
+                    (AOI_Name+'.Cfg_Bypassable',0)]
+
+        plc.write(*aoi_tags)
+
+        return super().setUp()
 
     # check the right file is on the plc, make this first test
     #@unittest.skipUnless(plc.connected, "PLC not connected")
     def test_1_check_plc_file_loaded(self):
-        self.assertEqual(plc.get_plc_name(),testPLCName,'Check correct file is loaded on bench PLC')
+        self.assertEqual(plc.get_plc_name(),Test_PLC_Name,'Check correct file is loaded on bench PLC')
 
     #@unittest.skipUnless(plc.connected,"PLC not connected")
     def test_0_check_tags_exist(self):
