@@ -34,7 +34,7 @@ def write_and_check_tag(plc,tag,value):
 
     if write_status == read_status:
         return True
-    else
+    else:
         return False
 
 class TestAOI(unittest.TestCase):
